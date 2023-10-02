@@ -12,6 +12,7 @@ func (self *ISTORE) Execute(frame *rtda.Frame) {
 	_istore(frame, uint(self.Index))
 }
 
+// ISTORE_0 用于将操作数栈中的整数值存储到局部变量表中的索引为 0 的位置
 type ISTORE_0 struct{ base.NoOperandsInstruction }
 
 func (self *ISTORE_0) Execute(frame *rtda.Frame) {

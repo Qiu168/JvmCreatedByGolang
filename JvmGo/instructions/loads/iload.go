@@ -12,6 +12,7 @@ func (self *ILOAD) Execute(frame *rtda.Frame) {
 	_iload(frame, self.Index)
 }
 
+// ILOAD_0 通常用于加载局部变量表中索引为 0 的整数型局部变量的值。
 type ILOAD_0 struct{ base.NoOperandsInstruction }
 
 func (self *ILOAD_0) Execute(frame *rtda.Frame) {

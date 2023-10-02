@@ -1,32 +1,27 @@
 package main
 
 import (
-	"JvmCreatedByGolang/JvmGo/classfile"
 	"JvmCreatedByGolang/JvmGo/instructions"
 	"JvmCreatedByGolang/JvmGo/instructions/base"
 	"JvmCreatedByGolang/JvmGo/rtda"
+	"JvmCreatedByGolang/JvmGo/rtda/heap"
 	"fmt"
 )
 
-func interpret(methodInfo *classfile.MemberInfo) {
-	codeAttr := methodInfo.CodeAttribute()
-	maxLocals := codeAttr.MaxLocals()
-	maxStack := codeAttr.MaxStack()
-	bytecode := codeAttr.Code()
-
+func interpret(method *heap.Method) {
 	thread := rtda.NewThread()
-	frame := thread.NewFrame(maxLocals, maxStack)
+	frame := thread.NewFrame(method)
 	thread.PushFrame(frame)
 
 	defer catchErr(frame)
-	loop(thread, bytecode)
+	loop(thread, method.Code())
 }
 
 func catchErr(frame *rtda.Frame) {
 	if r := recover(); r != nil {
-		fmt.Printf("LocalVars:%v\n", frame.LocalVars())
-		fmt.Printf("OperandStack:%v\n", frame.OperandStack())
-		panic(r)
+		//fmt.Printf("LocalVars:%v\n", frame.LocalVars())
+		//fmt.Printf("OperandStack:%v\n", frame.OperandStack())
+		//panic(r)
 	}
 }
 
