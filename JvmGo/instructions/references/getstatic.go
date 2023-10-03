@@ -6,7 +6,7 @@ import (
 	"JvmCreatedByGolang/JvmGo/rtda/heap"
 )
 
-// Get static field from class
+// GET_STATIC Get static field from class
 type GET_STATIC struct{ base.Index16Instruction }
 
 func (self *GET_STATIC) Execute(frame *rtda.Frame) {

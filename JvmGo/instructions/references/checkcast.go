@@ -6,7 +6,7 @@ import (
 	"JvmCreatedByGolang/JvmGo/rtda/heap"
 )
 
-// Check whether object is of given type
+// CHECK_CAST Check whether object is of given type
 type CHECK_CAST struct{ base.Index16Instruction }
 
 func (self *CHECK_CAST) Execute(frame *rtda.Frame) {

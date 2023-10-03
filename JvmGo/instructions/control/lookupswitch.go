@@ -19,6 +19,7 @@ npairs4
 match-offset pairs...
 */
 // Access jump table by key match and jump
+
 type LOOKUP_SWITCH struct {
 	defaultOffset int32
 	npairs        int32
