@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// :(linux/unix) or ;(windows)
 const pathListSeparator = string(os.PathListSeparator)
 
 type Entry interface {

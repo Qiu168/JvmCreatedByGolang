@@ -3,7 +3,13 @@ package reserved
 import (
 	"JvmCreatedByGolang/JvmGo/instructions/base"
 	"JvmCreatedByGolang/JvmGo/native"
+	_ "JvmCreatedByGolang/JvmGo/native/java/io"
 	_ "JvmCreatedByGolang/JvmGo/native/java/lang"
+	_ "JvmCreatedByGolang/JvmGo/native/java/security"
+	_ "JvmCreatedByGolang/JvmGo/native/java/util/concurrent/atomic"
+	_ "JvmCreatedByGolang/JvmGo/native/sun/io"
+	_ "JvmCreatedByGolang/JvmGo/native/sun/misc"
+	_ "JvmCreatedByGolang/JvmGo/native/sun/reflect"
 	"JvmCreatedByGolang/JvmGo/rtda"
 )
 

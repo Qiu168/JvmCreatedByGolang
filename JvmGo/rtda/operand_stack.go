@@ -39,7 +39,7 @@ func (self *OperandStack) PopFloat() float32 {
 	return math.Float32frombits(bits)
 }
 
-// PushLong long consumes two slots
+// long consumes two slots
 func (self *OperandStack) PushLong(val int64) {
 	self.slots[self.size].num = int32(val)
 	self.slots[self.size+1].num = int32(val >> 32)
@@ -52,7 +52,7 @@ func (self *OperandStack) PopLong() int64 {
 	return int64(high)<<32 | int64(low)
 }
 
-// PushDouble double consumes two slots
+// double consumes two slots
 func (self *OperandStack) PushDouble(val float64) {
 	bits := math.Float64bits(val)
 	self.PushLong(int64(bits))
@@ -72,6 +72,7 @@ func (self *OperandStack) PopRef() *heap.Object {
 	self.slots[self.size].ref = nil
 	return ref
 }
+
 func (self *OperandStack) PushSlot(slot Slot) {
 	self.slots[self.size] = slot
 	self.size++
@@ -80,9 +81,17 @@ func (self *OperandStack) PopSlot() Slot {
 	self.size--
 	return self.slots[self.size]
 }
+func (self *OperandStack) Clear() {
+	self.size = 0
+	for i := range self.slots {
+		self.slots[i].ref = nil
+	}
+}
+
 func (self *OperandStack) GetRefFromTop(n uint) *heap.Object {
 	return self.slots[self.size-1-n].ref
 }
+
 func (self *OperandStack) PushBoolean(val bool) {
 	if val {
 		self.PushInt(1)
@@ -93,9 +102,8 @@ func (self *OperandStack) PushBoolean(val bool) {
 func (self *OperandStack) PopBoolean() bool {
 	return self.PopInt() == 1
 }
-func (self *OperandStack) Clear() {
-	self.size = 0
-	for i := range self.slots {
-		self.slots[i].ref = nil
-	}
+
+// todo
+func NewOperandStack(maxStack uint) *OperandStack {
+	return newOperandStack(maxStack)
 }

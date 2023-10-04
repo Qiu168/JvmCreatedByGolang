@@ -21,12 +21,6 @@ func (self LocalVars) GetInt(index uint) int32 {
 	return self[index].num
 }
 
-// SetFloat GetFloat
-// Java 虚拟机内部通常将浮点数表示为有符号整数，
-// 但在解释浮点数位表示时，需要将其强制转换为无符号整数以确保正确解释符号位。
-// 这是因为 IEEE 754 格式中的符号位在位表示中的位置不同于有符号整数。
-// 这种处理方式有助于正确处理浮点数的位表示，以便在 Java 字节码中进行操作。
-// /*
 func (self LocalVars) SetFloat(index uint, val float32) {
 	bits := math.Float32bits(val)
 	self[index].num = int32(bits)
@@ -36,7 +30,7 @@ func (self LocalVars) GetFloat(index uint) float32 {
 	return math.Float32frombits(bits)
 }
 
-// SetLong long consumes two slots
+// long consumes two slots
 func (self LocalVars) SetLong(index uint, val int64) {
 	self[index].num = int32(val)
 	self[index+1].num = int32(val >> 32)
@@ -47,7 +41,7 @@ func (self LocalVars) GetLong(index uint) int64 {
 	return int64(high)<<32 | int64(low)
 }
 
-// SetDouble double consumes two slots
+// double consumes two slots
 func (self LocalVars) SetDouble(index uint, val float64) {
 	bits := math.Float64bits(val)
 	self.SetLong(index, int64(bits))
@@ -67,6 +61,10 @@ func (self LocalVars) GetRef(index uint) *heap.Object {
 func (self LocalVars) SetSlot(index uint, slot Slot) {
 	self[index] = slot
 }
+
 func (self LocalVars) GetThis() *heap.Object {
 	return self.GetRef(0)
+}
+func (self LocalVars) GetBoolean(index uint) bool {
+	return self.GetInt(index) == 1
 }

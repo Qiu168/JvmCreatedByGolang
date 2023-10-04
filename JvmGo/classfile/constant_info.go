@@ -27,6 +27,8 @@ func readConstantInfo(reader *ClassReader, cp ConstantPool) ConstantInfo {
 	c.readInfo(reader)
 	return c
 }
+
+// todo ugly code
 func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 	switch tag {
 	case CONSTANT_Integer:
@@ -39,6 +41,16 @@ func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 		return &ConstantDoubleInfo{}
 	case CONSTANT_Utf8:
 		return &ConstantUtf8Info{}
+	case CONSTANT_String:
+		return &ConstantStringInfo{cp: cp}
+	case CONSTANT_Class:
+		return &ConstantClassInfo{cp: cp}
+	case CONSTANT_Fieldref:
+		return &ConstantFieldRefInfo{ConstantMemberRefInfo{cp: cp}}
+	case CONSTANT_Methodref:
+		return &ConstantMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
+	case CONSTANT_InterfaceMethodref:
+		return &ConstantInterfaceMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
 	case CONSTANT_NameAndType:
 		return &ConstantNameAndTypeInfo{}
 	case CONSTANT_MethodType:
@@ -47,17 +59,7 @@ func newConstantInfo(tag uint8, cp ConstantPool) ConstantInfo {
 		return &ConstantMethodHandleInfo{}
 	case CONSTANT_InvokeDynamic:
 		return &ConstantInvokeDynamicInfo{}
-	case CONSTANT_Class:
-		return &ConstantClassInfo{cp: cp}
-	case CONSTANT_String:
-		return &ConstantStringInfo{cp: cp}
-	case CONSTANT_Fieldref:
-		return &ConstantFieldRefInfo{ConstantMemberRefInfo{cp: cp}}
-	case CONSTANT_Methodref:
-		return &ConstantMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
-	case CONSTANT_InterfaceMethodref:
-		return &ConstantInterfaceMethodRefInfo{ConstantMemberRefInfo{cp: cp}}
 	default:
-		panic("java.lang.classFormatError:constant pool tag!")
+		panic("java.lang.ClassFormatError: constant pool tag!")
 	}
 }

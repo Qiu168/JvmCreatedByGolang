@@ -4,15 +4,10 @@ import (
 	"JvmCreatedByGolang/JvmGo/instructions"
 	"JvmCreatedByGolang/JvmGo/instructions/base"
 	"JvmCreatedByGolang/JvmGo/rtda"
-	"JvmCreatedByGolang/JvmGo/rtda/heap"
 	"fmt"
 )
 
-func interpret(method *heap.Method, logInst bool) {
-	thread := rtda.NewThread()
-	frame := thread.NewFrame(method)
-	thread.PushFrame(frame)
-
+func interpret(thread *rtda.Thread, logInst bool) {
 	defer catchErr(thread)
 	loop(thread, logInst)
 }
@@ -63,7 +58,8 @@ func logFrames(thread *rtda.Thread) {
 		frame := thread.PopFrame()
 		method := frame.Method()
 		className := method.Class().Name()
-		fmt.Printf(">> pc:%4d %v.%v%v \n",
-			frame.NextPC(), className, method.Name(), method.Descriptor())
+		lineNum := method.GetLineNumber(frame.NextPC())
+		fmt.Printf(">> line:%4d pc:%4d %v.%v%v \n",
+			lineNum, frame.NextPC(), className, method.Name(), method.Descriptor())
 	}
 }

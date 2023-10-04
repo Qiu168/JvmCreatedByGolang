@@ -31,6 +31,7 @@ func NewClassLoader(cp *classpath.Classpath, verboseFlag bool) *ClassLoader {
 	loader.loadPrimitiveClasses()
 	return loader
 }
+
 func (self *ClassLoader) loadBasicClasses() {
 	jlClassClass := self.LoadClass("java/lang/Class")
 	for _, class := range self.classMap {
@@ -40,6 +41,7 @@ func (self *ClassLoader) loadBasicClasses() {
 		}
 	}
 }
+
 func (self *ClassLoader) loadPrimitiveClasses() {
 	for primitiveType, _ := range primitiveTypes {
 		self.loadPrimitiveClass(primitiveType)
@@ -63,10 +65,20 @@ func (self *ClassLoader) LoadClass(name string) *Class {
 		// already loaded
 		return class
 	}
-	if name[0] == '[' {
-		return self.loadArrayClass(name)
+
+	var class *Class
+	if name[0] == '[' { // array class
+		class = self.loadArrayClass(name)
+	} else {
+		class = self.loadNonArrayClass(name)
 	}
-	return self.loadNonArrayClass(name)
+
+	if jlClassClass, ok := self.classMap["java/lang/Class"]; ok {
+		class.jClass = jlClassClass.NewObject()
+		class.jClass.extra = class
+	}
+
+	return class
 }
 
 func (self *ClassLoader) loadArrayClass(name string) *Class {
@@ -84,11 +96,16 @@ func (self *ClassLoader) loadArrayClass(name string) *Class {
 	self.classMap[name] = class
 	return class
 }
+
 func (self *ClassLoader) loadNonArrayClass(name string) *Class {
 	data, entry := self.readClass(name)
 	class := self.defineClass(data)
 	link(class)
-	fmt.Printf("[Loaded %s from %s]\n", name, entry)
+
+	if self.verboseFlag {
+		fmt.Printf("[Loaded %s from %s]\n", name, entry)
+	}
+
 	return class
 }
 
@@ -103,6 +120,7 @@ func (self *ClassLoader) readClass(name string) ([]byte, classpath.Entry) {
 // jvms 5.3.5
 func (self *ClassLoader) defineClass(data []byte) *Class {
 	class := parseClass(data)
+	hackClass(class)
 	class.loader = self
 	resolveSuperClass(class)
 	resolveInterfaces(class)
@@ -216,5 +234,13 @@ func initStaticFinalVar(class *Class, field *Field) {
 			jStr := JString(class.Loader(), goStr)
 			vars.SetRef(slotId, jStr)
 		}
+	}
+}
+
+// todo
+func hackClass(class *Class) {
+	if class.name == "java/lang/ClassLoader" {
+		loadLibrary := class.GetStaticMethod("loadLibrary", "(Ljava/lang/Class;Ljava/lang/String;Z)V")
+		loadLibrary.code = []byte{0xb1} // return void
 	}
 }
