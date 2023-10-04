@@ -16,6 +16,7 @@ type Class struct {
 	methods           []*Method
 	loader            *ClassLoader
 	superClass        *Class
+	sourceFile        string
 	interfaces        []*Class
 	instanceSlotCount uint
 	staticSlotCount   uint
@@ -33,7 +34,14 @@ func newClass(cf *classfile.ClassFile) *Class {
 	class.constantPool = newConstantPool(class, cf.ConstantPool())
 	class.fields = newFields(class, cf.Fields())
 	class.methods = newMethods(class, cf.Methods())
+	class.sourceFile = getSourceFile(cf)
 	return class
+}
+func getSourceFile(cf *classfile.ClassFile) string {
+	if sfAttr := cf.SourceFileAttribute(); sfAttr != nil {
+		return sfAttr.FileName()
+	}
+	return "Unknown" // todo
 }
 
 func (self *Class) IsPublic() bool {
@@ -79,6 +87,9 @@ func (self *Class) Loader() *ClassLoader {
 }
 func (self *Class) SuperClass() *Class {
 	return self.superClass
+}
+func (self *Class) SourceFile() string {
+	return self.sourceFile
 }
 func (self *Class) StaticVars() Slots {
 	return self.staticVars
