@@ -21,6 +21,7 @@ type Class struct {
 	staticSlotCount   uint
 	staticVars        Slots
 	initStarted       bool
+	jClass            *Object
 }
 
 func newClass(cf *classfile.ClassFile) *Class {
@@ -89,11 +90,18 @@ func (self *Class) InitStarted() bool {
 func (self *Class) StartInit() {
 	self.initStarted = true
 }
+func (self *Class) JavaName() string {
+	return strings.Replace(self.name, "/", ".", -1)
+}
 
 // jvms 5.4.4
 func (self *Class) isAccessibleTo(other *Class) bool {
 	return self.IsPublic() ||
 		self.GetPackageName() == other.GetPackageName()
+}
+func (self *Class) IsPrimitive() bool {
+	_, ok := primitiveTypes[self.name]
+	return ok
 }
 
 func (self *Class) GetPackageName() string {
@@ -155,4 +163,20 @@ func (self *Class) NewObject() *Object {
 func (self *Class) ArrayClass() *Class {
 	arrayClassName := getArrayClassName(self.name)
 	return self.loader.LoadClass(arrayClassName)
+}
+
+func (self *Class) JClass() *Object {
+	return self.jClass
+}
+func (self *Class) GetInstanceMethod(name, descriptor string) *Method {
+	return self.getMethod(name, descriptor, false)
+}
+
+func (self *Class) GetRefVar(fieldName, fieldDescriptor string) *Object {
+	field := self.getField(fieldName, fieldDescriptor, true)
+	return self.staticVars.GetRef(field.slotId)
+}
+func (self *Class) SetRefVar(fieldName, fieldDescriptor string, ref *Object) {
+	field := self.getField(fieldName, fieldDescriptor, true)
+	self.staticVars.SetRef(field.slotId, ref)
 }

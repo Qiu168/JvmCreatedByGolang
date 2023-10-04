@@ -15,15 +15,47 @@ class names:
   - array classes: [Ljava/lang/Object; ...
 */
 type ClassLoader struct {
-	cp       *classpath.Classpath
-	classMap map[string]*Class // loaded classes
+	cp          *classpath.Classpath
+	verboseFlag bool
+	classMap    map[string]*Class // loaded classes
 }
 
-func NewClassLoader(cp *classpath.Classpath) *ClassLoader {
-	return &ClassLoader{
-		cp:       cp,
-		classMap: make(map[string]*Class),
+func NewClassLoader(cp *classpath.Classpath, verboseFlag bool) *ClassLoader {
+	loader := &ClassLoader{
+		cp:          cp,
+		verboseFlag: verboseFlag,
+		classMap:    make(map[string]*Class),
 	}
+
+	loader.loadBasicClasses()
+	loader.loadPrimitiveClasses()
+	return loader
+}
+func (self *ClassLoader) loadBasicClasses() {
+	jlClassClass := self.LoadClass("java/lang/Class")
+	for _, class := range self.classMap {
+		if class.jClass == nil {
+			class.jClass = jlClassClass.NewObject()
+			class.jClass.extra = class
+		}
+	}
+}
+func (self *ClassLoader) loadPrimitiveClasses() {
+	for primitiveType, _ := range primitiveTypes {
+		self.loadPrimitiveClass(primitiveType)
+	}
+}
+
+func (self *ClassLoader) loadPrimitiveClass(className string) {
+	class := &Class{
+		accessFlags: ACC_PUBLIC, // todo
+		name:        className,
+		loader:      self,
+		initStarted: true,
+	}
+	class.jClass = self.classMap["java/lang/Class"].NewObject()
+	class.jClass.extra = class
+	self.classMap[className] = class
 }
 
 func (self *ClassLoader) LoadClass(name string) *Class {
